@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Infrastructure – Europe</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0d12;
+    --surface: #0f1318;
+    --surface2: #151b22;
+    --border: #1e2730;
+    --accent: #00e5a0;
+    --accent2: #0084ff;
+    --accent3: #ff6b35;
+    --warn: #ffcc00;
+    --text: #e8edf2;
+    --muted: #5a6a7a;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 32px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 56px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .header-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-tag::before {
+    content: '';
+    display: block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  .header h1 {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: var(--text);
+  }
+
+  .header h1 span {
+    color: var(--accent);
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,160,0.08);
+    border: 1px solid rgba(0,229,160,0.25);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--accent); }
+    50% { opacity: 0.4; box-shadow: none; }
+  }
+
+  .meta-item {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Sites grid */
+  .sites-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-bottom: 4px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .site-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    cursor: default;
+  }
+
+  .site-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    transition: opacity 0.3s;
+  }
+
+  .site-card.es::before { background: linear-gradient(90deg, #c60b1e, #ffc400); }
+  .site-card.uk::before { background: linear-gradient(90deg, #003087, #cf142b); }
+  .site-card.sk::before { background: linear-gradient(90deg, #003DA5, #ee1c25); }
+
+  .site-card:hover {
+    border-color: rgba(0,229,160,0.3);
+    transform: translateY(-2px);
+  }
+
+  .site-flag {
+    font-size: 28px;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .site-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    margin-bottom: 4px;
+  }
+
+  .site-role {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .site-stats {
+    display: grid;
+    gap: 8px;
+  }
+
+  .site-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .site-stat:last-child { border-bottom: none; }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .stat-val.green { color: var(--accent); }
+  .stat-val.warn { color: var(--warn); }
+
+  .site-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    border: 1px solid rgba(0,229,160,0.3);
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  /* Topology table */
+  .section {
+    margin-top: 48px;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .data-table thead tr {
+    border-bottom: 1px solid var(--accent);
+  }
+
+  .data-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .data-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+  }
+
+  .data-table tbody tr:hover {
+    background: var(--surface2);
+  }
+
+  .data-table td {
+    padding: 14px 16px;
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  .data-table td:first-child {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .chip-green { background: rgba(0,229,160,0.1); color: var(--accent); border: 1px solid rgba(0,229,160,0.2); }
+  .chip-blue { background: rgba(0,132,255,0.1); color: var(--accent2); border: 1px solid rgba(0,132,255,0.2); }
+  .chip-orange { background: rgba(255,107,53,0.1); color: var(--accent3); border: 1px solid rgba(255,107,53,0.2); }
+
+  /* Doc index */
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    margin-top: 16px;
+  }
+
+  .doc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.3s, background 0.3s;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .doc-card:hover {
+    border-color: rgba(0,229,160,0.3);
+    background: var(--surface2);
+  }
+
+  .doc-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .doc-info {}
+
+  .doc-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+
+  .doc-desc {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+  }
+
+  .doc-arrow {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 16px;
+    transition: color 0.3s, transform 0.3s;
+  }
+
+  .doc-card:hover .doc-arrow {
+    color: var(--accent);
+    transform: translateX(3px);
+  }
+
+  /* Alert bar */
+  .alert-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,204,0,0.06);
+    border: 1px solid rgba(255,204,0,0.2);
+    border-left: 3px solid var(--warn);
+    padding: 14px 20px;
+    margin-top: 48px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--warn);
+    letter-spacing: 0.5px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  @media (max-width: 768px) {
+    .sites-grid { grid-template-columns: 1fr; }
+    .doc-grid { grid-template-columns: 1fr; }
+    .wrapper { padding: 32px 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-tag">ENV – Tech & IT · Knowledgebase</div>
+    <h1>Network Infrastructure<br><span>Europe</span></h1>
+    <div class="header-meta">
+      <div class="status-pill">
+        <span class="status-dot"></span>
+        ALL SYSTEMS OPERATIONAL
+      </div>
+      <div class="meta-item">OWNER: IT TEAM</div>
+      <div class="meta-item">UPDATED: FEB 2026</div>
+      <div class="meta-item">NODES: 3</div>
+    </div>
+  </header>
+
+  <!-- Sites -->
+  <div class="sites-grid">
+
+    <!-- Spain -->
+    <div class="site-card es">
+      <span class="site-badge">HUB</span>
+      <span class="site-flag">🇪🇸</span>
+      <div class="site-name">Spain</div>
+      <div class="site-role">Central Hub · Madrid</div>
+      <div class="site-stats">
+        <div class="site-stat">
+          <span class="stat-label">Bandwidth</span>
+          <span class="stat-val green">1 Gbps</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Backup</span>
+          <span class="stat-val">4G LTE</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Firewall</span>
+          <span class="stat-val">FortiGate 60F</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Routing</span>
+          <span class="stat-val">OSPF</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">VPN Role</span>
+          <span class="stat-val green">Concentrator</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">IDS/IPS</span>
+          <span class="stat-val green">Active</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Status</span>
+          <span class="stat-val green">● Operational</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cardiff -->
+    <div class="site-card uk">
+      <span class="site-badge">NODE</span>
+      <span class="site-flag">🇬🇧</span>
+      <div class="site-name">Cardiff</div>
+      <div class="site-role">UK Node · Wales</div>
+      <div class="site-stats">
+        <div class="site-stat">
+          <span class="stat-label">Bandwidth</span>
+          <span class="stat-val green">500 Mbps</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Backup</span>
+          <span class="stat-val">LTE Failover</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Firewall</span>
+          <span class="stat-val">Meraki MX64</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Routing</span>
+          <span class="stat-val">BGP</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">VPN</span>
+          <span class="stat-val green">IPsec Auto-VPN</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Managed</span>
+          <span class="stat-val green">Cloud (Meraki)</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Status</span>
+          <span class="stat-val green">● Operational</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slovakia -->
+    <div class="site-card sk">
+      <span class="site-badge">NODE</span>
+      <span class="site-flag">🇸🇰</span>
+      <div class="site-name">Slovakia</div>
+      <div class="site-role">CEE Node · Bratislava</div>
+      <div class="site-stats">
+        <div class="site-stat">
+          <span class="stat-label">Bandwidth</span>
+          <span class="stat-val green">300 Mbps</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Backup</span>
+          <span class="stat-val warn">None</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Router</span>
+          <span class="stat-val">Mikrotik RB4011</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Routing</span>
+          <span class="stat-val">RIP</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">VPN</span>
+          <span class="stat-val green">L2TP/IPsec</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">IDS/IPS</span>
+          <span class="stat-val warn">⚠ Pending</span>
+        </div>
+        <div class="site-stat">
+          <span class="stat-label">Status</span>
+          <span class="stat-val green">● Operational</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Topology Table -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">02 · Topology</span>
+      <div class="section-line"></div>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Site</th>
+          <th>Connection</th>
+          <th>Bandwidth</th>
+          <th>Backup</th>
+          <th>Routing</th>
+          <th>VPN Protocol</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🇪🇸 Spain</td>
+          <td>Symmetrical Fiber Direct</td>
+          <td><span class="chip chip-green">1 Gbps</span></td>
+          <td>4G LTE</td>
+          <td>OSPF</td>
+          <td><span class="chip chip-blue">Concentrator</span></td>
+        </tr>
+        <tr>
+          <td>🇬🇧 Cardiff</td>
+          <td>BT Business FTTP</td>
+          <td><span class="chip chip-green">500 Mbps</span></td>
+          <td>LTE Failover</td>
+          <td>BGP</td>
+          <td><span class="chip chip-blue">IPsec Auto-VPN</span></td>
+        </tr>
+        <tr>
+          <td>🇸🇰 Slovakia</td>
+          <td>Slovak Telekom Fiber</td>
+          <td><span class="chip chip-green">300 Mbps</span></td>
+          <td><span class="chip chip-orange">None</span></td>
+          <td>RIP</td>
+          <td><span class="chip chip-blue">L2TP/IPsec</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert-bar">
+    ⚠ &nbsp; Slovakia – IDS/IPS not implemented. Evaluation scheduled Q2 2026.
+  </div>
+
+  <!-- Documentation Index -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-label">03 · Documentation</span>
+      <div class="section-line"></div>
+    </div>
+    <div class="doc-grid">
+      <div class="doc-card">
+        <span class="doc-icon">🇪🇸</span>
+        <div class="doc-info">
+          <div class="doc-title">Spain – Central Hub</div>
+          <div class="doc-desc">Madrid · FortiGate · Cisco · UniFi</div>
+        </div>
+        <span class="doc-arrow">→</span>
+      </div>
+      <div class="doc-card">
+        <span class="doc-icon">🇬🇧</span>
+        <div class="doc-info">
+          <div class="doc-title">Cardiff – UK Node</div>
+          <div class="doc-desc">Wales · Meraki Stack · Cloud Managed</div>
+        </div>
+        <span class="doc-arrow">→</span>
+      </div>
+      <div class="doc-card">
+        <span class="doc-icon">🇸🇰</span>
+        <div class="doc-info">
+          <div class="doc-title">Slovakia – CEE Node</div>
+          <div class="doc-desc">Bratislava · Mikrotik · HP Switches</div>
+        </div>
+        <span class="doc-arrow">→</span>
+      </div>
+      <div class="doc-card">
+        <span class="doc-icon">📍</span>
+        <div class="doc-info">
+          <div class="doc-title">IP Address Management</div>
+          <div class="doc-desc">IPAM · Subnets · DHCP · VPN Ranges</div>
+        </div>
+        <span class="doc-arrow">→</span>
+      </div>
+      <div class="doc-card" style="grid-column: 1 / -1;">
+        <span class="doc-icon">🔥</span>
+        <div class="doc-info">
+          <div class="doc-title">Firewall Rules & Security Configuration</div>
+          <div class="doc-desc">FortiGate · Meraki · Mikrotik · VLANs · NAT · IDS/IPS</div>
+        </div>
+        <span class="doc-arrow">→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>NETWORK INFRASTRUCTURE – EUROPE · v1.0</span>
+    <span>IT TEAM · FEB 2026</span>
+  </div>
+
+</div>
+</body>
+</html>
