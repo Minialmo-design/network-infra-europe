@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IP Address Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #00e5a0; --accent2: #0084ff; --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.12); --text: #f0f4f8; --muted: rgba(255,255,255,0.45); --mono: 'Space Mono', monospace; --sans: 'Syne', sans-serif; }
+  body { min-height: 100vh; font-family: var(--sans); color: var(--text); background: #0d0d0d; overflow-x: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 50% at 10% 30%, rgba(0,229,160,0.2) 0%, transparent 60%), radial-gradient(ellipse 60% 60% at 90% 70%, rgba(0,132,255,0.2) 0%, transparent 60%), #0d0d0d; }
+  .bg::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 50px 50px; }
+  .wrapper { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+  .back { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 1px; margin-bottom: 40px; transition: color 0.2s; }
+  .back:hover { color: var(--text); }
+  .header { margin-bottom: 48px; animation: fadeUp 0.5s ease both; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.25); padding: 5px 12px; border-radius: 2px; margin-bottom: 16px; }
+  h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+  .subtitle { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; animation: fadeUp 0.5s 0.1s ease both; }
+  .stat-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 12px; padding: 20px; text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 800; color: var(--accent); margin-bottom: 6px; }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .section { margin-bottom: 28px; animation: fadeUp 0.5s 0.2s ease both; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--glass-border); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  thead tr { background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--glass-border); }
+  th { padding: 12px 16px; text-align: left; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
+  td { padding: 12px 16px; color: var(--text); vertical-align: middle; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 20px; font-size: 11px; }
+  .badge-green { background: rgba(0,229,100,0.12); color: #00e564; border: 1px solid rgba(0,229,100,0.2); }
+  .badge-blue { background: rgba(0,132,255,0.12); color: var(--accent2); border: 1px solid rgba(0,132,255,0.2); }
+  .badge-red { background: rgba(255,77,106,0.12); color: #ff4d6a; border: 1px solid rgba(255,77,106,0.2); }
+  .badge-muted { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--glass-border); }
+  .site-label { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+  .vpn-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .vpn-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 12px; padding: 20px; }
+  .vpn-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .vpn-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: var(--mono); font-size: 11px; }
+  .vpn-row:last-child { border-bottom: none; }
+  .vpn-key { color: var(--muted); }
+  .vpn-val { color: var(--text); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  @media (max-width: 700px) { .stats-row { grid-template-columns: 1fr; } .vpn-grid { grid-template-columns: 1fr; } .wrapper { padding: 32px 16px; } }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrapper">
+  <a class="back" href="https://minialmo-design.github.io/network-infra-europe/">← Back to Overview</a>
+  <div class="header">
+    <div class="tag">📍 IPAM</div>
+    <h1>IP Address<br>Management</h1>
+    <div class="subtitle">Subnets · DHCP Pools · VPN Ranges · Reserved IPs</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val">3</div><div class="stat-label">Sites</div></div>
+    <div class="stat-card"><div class="stat-val">9</div><div class="stat-label">Devices</div></div>
+    <div class="stat-card"><div class="stat-val">2</div><div class="stat-label">VPN Tunnels</div></div>
+  </div>
+
+  <!-- Spain -->
+  <div class="section">
+    <div class="section-title">🇪🇸 Spain — 192.168.x.x</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>IP / Range</th><th>Device / Purpose</th><th>VLAN</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>192.168.1.1</td><td>FortiGate 60F (FW-MAD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>192.168.1.2</td><td>Cisco 2960X (SW-MAD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>192.168.1.50</td><td>UniFi U6-Pro (AP-MAD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>192.168.10.0/24</td><td>VLAN 10 — Data Network</td><td>10</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 192.168.10.1</td></tr>
+          <tr><td>192.168.10.100–200</td><td>DHCP Pool — Workstations</td><td>10</td><td><span class="badge badge-blue">DHCP</span></td><td>100 addresses</td></tr>
+          <tr><td>192.168.20.0/24</td><td>VLAN 20 — Voice Network</td><td>20</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 192.168.20.1</td></tr>
+          <tr><td>192.168.20.50–150</td><td>DHCP Pool — VoIP Phones</td><td>20</td><td><span class="badge badge-blue">DHCP</span></td><td>100 addresses</td></tr>
+          <tr><td>192.168.30.0/24</td><td>VLAN 30 — Guest WiFi</td><td>30</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 192.168.30.1</td></tr>
+          <tr><td>192.168.30.50–254</td><td>DHCP Pool — Guests</td><td>30</td><td><span class="badge badge-blue">DHCP</span></td><td>DNS: 8.8.8.8</td></tr>
+          <tr><td>192.168.1.250–254</td><td>Reserved — Future expansion</td><td>—</td><td><span class="badge badge-red">Reserved</span></td><td>Do not assign</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cardiff -->
+  <div class="section">
+    <div class="section-title">🇬🇧 Cardiff — 10.10.x.x</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>IP / Range</th><th>Device / Purpose</th><th>VLAN</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>10.10.20.1</td><td>Meraki MX64 (FW-CRD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>10.10.20.2</td><td>Meraki MS120-24P (SW-CRD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>10.10.20.50</td><td>Meraki MR33 (AP-CRD-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>10.10.10.0/24</td><td>VLAN 10 — Data Network</td><td>10</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 10.10.10.1</td></tr>
+          <tr><td>10.10.10.100–200</td><td>DHCP Pool — Workstations</td><td>10</td><td><span class="badge badge-blue">DHCP</span></td><td>100 addresses</td></tr>
+          <tr><td>10.10.20.0/24</td><td>VLAN 20 — Voice Network</td><td>20</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 10.10.20.1</td></tr>
+          <tr><td>10.10.30.0/24</td><td>VLAN 30 — Guest WiFi</td><td>30</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 10.10.30.1</td></tr>
+          <tr><td>10.10.20.250–254</td><td>Reserved — Future expansion</td><td>—</td><td><span class="badge badge-red">Reserved</span></td><td>Do not assign</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Slovakia -->
+  <div class="section">
+    <div class="section-title">🇸🇰 Slovakia — 172.16.x.x</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>IP / Range</th><th>Device / Purpose</th><th>VLAN</th><th>Type</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>172.16.1.1</td><td>Mikrotik RB4011 (RT-BRT-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>172.16.1.2</td><td>HP 2530-24G (SW-BRT-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>172.16.1.50</td><td>Mikrotik cAP ac (AP-BRT-01)</td><td>Mgmt</td><td><span class="badge badge-muted">Static</span></td><td><span class="badge badge-green">● Active</span></td></tr>
+          <tr><td>172.16.10.0/24</td><td>VLAN 10 — Data Network</td><td>10</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 172.16.10.1</td></tr>
+          <tr><td>172.16.10.100–200</td><td>DHCP Pool — Workstations</td><td>10</td><td><span class="badge badge-blue">DHCP</span></td><td>100 addresses</td></tr>
+          <tr><td>172.16.20.0/24</td><td>VLAN 20 — Voice Network</td><td>20</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 172.16.20.1</td></tr>
+          <tr><td>172.16.30.0/24</td><td>VLAN 30 — Guest WiFi</td><td>30</td><td><span class="badge badge-blue">Subnet</span></td><td>GW: 172.16.30.1</td></tr>
+          <tr><td>172.16.1.250–254</td><td>Reserved — Future expansion</td><td>—</td><td><span class="badge badge-red">Reserved</span></td><td>Do not assign</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- VPN -->
+  <div class="section">
+    <div class="section-title">🔐 VPN Tunnel Addressing</div>
+    <div class="vpn-grid">
+      <div class="vpn-card">
+        <div class="vpn-title">🇪🇸 Madrid ↔ 🇬🇧 Cardiff</div>
+        <div class="vpn-row"><span class="vpn-key">Local Gateway</span><span class="vpn-val">192.168.1.1</span></div>
+        <div class="vpn-row"><span class="vpn-key">Remote Gateway</span><span class="vpn-val">10.10.20.1</span></div>
+        <div class="vpn-row"><span class="vpn-key">Local Network</span><span class="vpn-val">192.168.0.0/16</span></div>
+        <div class="vpn-row"><span class="vpn-key">Remote Network</span><span class="vpn-val">10.10.0.0/16</span></div>
+        <div class="vpn-row"><span class="vpn-key">Protocol</span><span class="vpn-val">IPsec Auto-VPN</span></div>
+        <div class="vpn-row"><span class="vpn-key">Encryption</span><span class="vpn-val">AES-256</span></div>
+      </div>
+      <div class="vpn-card">
+        <div class="vpn-title">🇪🇸 Madrid ↔ 🇸🇰 Slovakia</div>
+        <div class="vpn-row"><span class="vpn-key">Local Gateway</span><span class="vpn-val">192.168.1.1</span></div>
+        <div class="vpn-row"><span class="vpn-key">Remote Gateway</span><span class="vpn-val">172.16.1.1</span></div>
+        <div class="vpn-row"><span class="vpn-key">Local Network</span><span class="vpn-val">192.168.0.0/16</span></div>
+        <div class="vpn-row"><span class="vpn-key">Remote Network</span><span class="vpn-val">172.16.0.0/16</span></div>
+        <div class="vpn-row"><span class="vpn-key">Protocol</span><span class="vpn-val">L2TP/IPsec</span></div>
+        <div class="vpn-row"><span class="vpn-key">Encryption</span><span class="vpn-val">AES-256</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer"><span>IP ADDRESS MANAGEMENT (IPAM)</span><span>IT Team · v1.0 · Feb 2026</span></div>
+</div>
+</body>
+</html>

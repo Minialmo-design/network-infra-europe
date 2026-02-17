@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firewall Rules & Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #ff6b35; --accent2: #ff4d6a; --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.12); --text: #f0f4f8; --muted: rgba(255,255,255,0.45); --mono: 'Space Mono', monospace; --sans: 'Syne', sans-serif; }
+  body { min-height: 100vh; font-family: var(--sans); color: var(--text); background: #0d0d0d; overflow-x: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 50% at 15% 25%, rgba(255,107,53,0.25) 0%, transparent 55%), radial-gradient(ellipse 60% 60% at 85% 75%, rgba(255,77,106,0.2) 0%, transparent 55%), #0d0d0d; }
+  .bg::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 50px 50px; }
+  .wrapper { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+  .back { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 1px; margin-bottom: 40px; transition: color 0.2s; }
+  .back:hover { color: var(--text); }
+  .header { margin-bottom: 48px; animation: fadeUp 0.5s ease both; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); background: rgba(255,107,53,0.1); border: 1px solid rgba(255,107,53,0.25); padding: 5px 12px; border-radius: 2px; margin-bottom: 16px; }
+  h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+  .subtitle { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .section { margin-bottom: 28px; animation: fadeUp 0.5s 0.15s ease both; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--glass-border); margin-bottom: 12px; }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+  thead tr { background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--glass-border); }
+  th { padding: 11px 14px; text-align: left; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
+  td { padding: 11px 14px; color: var(--text); vertical-align: middle; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .badge-allow { background: rgba(0,229,100,0.12); color: #00e564; border: 1px solid rgba(0,229,100,0.2); }
+  .badge-deny { background: rgba(255,77,106,0.12); color: #ff4d6a; border: 1px solid rgba(255,77,106,0.2); }
+  .badge-warn { background: rgba(245,158,11,0.12); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
+  .badge-info { background: rgba(0,132,255,0.12); color: #4d9fff; border: 1px solid rgba(0,132,255,0.2); }
+  .badge-muted { background: rgba(255,255,255,0.06); color: var(--muted); border: 1px solid var(--glass-border); }
+  .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .filter-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 12px; padding: 20px; }
+  .filter-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .filter-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: var(--mono); font-size: 11px; color: var(--text); }
+  .filter-item:last-child { border-bottom: none; }
+  .dot-red { width: 7px; height: 7px; border-radius: 50%; background: #ff4d6a; flex-shrink: 0; }
+  .dot-green { width: 7px; height: 7px; border-radius: 50%; background: #00e564; flex-shrink: 0; }
+  .security-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .security-item { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 10px; padding: 16px 20px; }
+  .security-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .security-value { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .alert-warn { display: flex; align-items: flex-start; gap: 12px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2); border-left: 3px solid #f59e0b; border-radius: 0 10px 10px 0; padding: 16px 20px; font-family: var(--mono); font-size: 11px; color: #f59e0b; line-height: 1.6; margin-bottom: 20px; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); }
+  @media (max-width: 700px) { .filter-grid { grid-template-columns: 1fr; } .security-grid { grid-template-columns: 1fr; } .wrapper { padding: 32px 16px; } }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrapper">
+  <a class="back" href="https://minialmo-design.github.io/network-infra-europe/">← Back to Overview</a>
+  <div class="header">
+    <div class="tag">🔥 Security</div>
+    <h1>Firewall Rules &<br>Security Config</h1>
+    <div class="subtitle">FortiGate · Meraki · Mikrotik · VLANs · NAT · IDS/IPS</div>
+  </div>
+
+  <!-- Spain Firewall -->
+  <div class="section">
+    <div class="section-title">🇪🇸 Spain — FortiGate 60F (192.168.1.1)</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Name</th><th>Source</th><th>Destination</th><th>Service</th><th>Action</th><th>Log</th></tr></thead>
+        <tbody>
+          <tr><td>100</td><td>Internet-Data</td><td>VLAN 10</td><td>WAN</td><td>HTTP/HTTPS</td><td><span class="badge badge-allow">● Allow</span></td><td>Yes</td></tr>
+          <tr><td>101</td><td>Internet-Voice</td><td>VLAN 20</td><td>WAN</td><td>SIP/RTP</td><td><span class="badge badge-allow">● Allow</span></td><td>Yes</td></tr>
+          <tr><td>102</td><td>Internet-Guest</td><td>VLAN 30</td><td>WAN</td><td>HTTP/HTTPS</td><td><span class="badge badge-allow">● Allow</span></td><td>Yes</td></tr>
+          <tr><td>200</td><td>VPN-Cardiff-IN</td><td>10.10.0.0/16</td><td>VLAN 10</td><td>Any</td><td><span class="badge badge-allow">● Allow</span></td><td>Yes</td></tr>
+          <tr><td>201</td><td>VPN-Slovakia-IN</td><td>172.16.0.0/16</td><td>VLAN 10</td><td>Any</td><td><span class="badge badge-allow">● Allow</span></td><td>Yes</td></tr>
+          <tr><td>300</td><td>Block-Guest-Internal</td><td>VLAN 30</td><td>VLAN 10, 20</td><td>Any</td><td><span class="badge badge-deny">✕ Deny</span></td><td>Yes</td></tr>
+          <tr><td>301</td><td>Geo-Block</td><td>Non-EU</td><td>Any</td><td>Any</td><td><span class="badge badge-deny">✕ Deny</span></td><td>Yes</td></tr>
+          <tr><td>302</td><td>Block-Malware</td><td>Any</td><td>Malware cat.</td><td>Any</td><td><span class="badge badge-deny">✕ Deny</span></td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Cardiff Firewall -->
+  <div class="section">
+    <div class="section-title">🇬🇧 Cardiff — Meraki MX64 (10.10.20.1)</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Name</th><th>Source</th><th>Destination</th><th>Service</th><th>Action</th><th>Schedule</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Allow-Internet-Data</td><td>VLAN 10</td><td>WAN</td><td>HTTP/HTTPS</td><td><span class="badge badge-allow">● Allow</span></td><td>08:00–19:00</td></tr>
+          <tr><td>2</td><td>Allow-VPN-Madrid</td><td>192.168.0.0/16</td><td>VLAN 10</td><td>Any</td><td><span class="badge badge-allow">● Allow</span></td><td>Always</td></tr>
+          <tr><td>3</td><td>Block-Guest-Internal</td><td>VLAN 30</td><td>VLAN 10, 20</td><td>Any</td><td><span class="badge badge-deny">✕ Deny</span></td><td>Always</td></tr>
+          <tr><td>4</td><td>Allow-Guest-Internet</td><td>VLAN 30</td><td>WAN</td><td>HTTP/HTTPS</td><td><span class="badge badge-allow">● Allow</span></td><td>08:00–19:00</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Slovakia Firewall -->
+  <div class="section">
+    <div class="section-title">🇸🇰 Slovakia — Mikrotik RB4011 (172.16.1.1)</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule</th><th>Name</th><th>Source</th><th>Destination</th><th>Service</th><th>Action</th><th>Log</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Accept-Established</td><td>Any</td><td>Any</td><td>established/related</td><td><span class="badge badge-allow">● Accept</span></td><td>Yes</td></tr>
+          <tr><td>2</td><td>Accept-VPN-Madrid</td><td>192.168.0.0/16</td><td>VLAN 10</td><td>Any</td><td><span class="badge badge-allow">● Accept</span></td><td>Yes</td></tr>
+          <tr><td>3</td><td>Accept-Internet-Data</td><td>VLAN 10</td><td>WAN</td><td>HTTP/HTTPS</td><td><span class="badge badge-allow">● Accept</span></td><td>Yes</td></tr>
+          <tr><td>4</td><td>Drop-Guest-Internal</td><td>VLAN 30</td><td>VLAN 10, 20</td><td>Any</td><td><span class="badge badge-deny">✕ Drop</span></td><td>Yes</td></tr>
+          <tr><td>5</td><td>Drop-All</td><td>Any</td><td>Any</td><td>Any</td><td><span class="badge badge-deny">✕ Drop</span></td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Content Filtering -->
+  <div class="section">
+    <div class="section-title">🔍 Content Filtering</div>
+    <div class="filter-grid">
+      <div class="filter-card">
+        <div class="filter-title">🚫 Blocked</div>
+        <div class="filter-item"><span class="dot-red"></span>Social Media (FB, IG, TikTok, Twitter)</div>
+        <div class="filter-item"><span class="dot-red"></span>Streaming (Netflix, YouTube, Twitch)</div>
+        <div class="filter-item"><span class="dot-red"></span>Torrents / P2P</div>
+        <div class="filter-item"><span class="dot-red"></span>Gaming Sites</div>
+        <div class="filter-item"><span class="dot-red"></span>Adult Content</div>
+        <div class="filter-item"><span class="dot-red"></span>Malware & Phishing Sites</div>
+      </div>
+      <div class="filter-card">
+        <div class="filter-title">✅ Allowed</div>
+        <div class="filter-item"><span class="dot-green"></span>Office 365 / Google Workspace</div>
+        <div class="filter-item"><span class="dot-green"></span>Cloud (AWS, Azure, GCP)</div>
+        <div class="filter-item"><span class="dot-green"></span>Slack / Teams / Zoom</div>
+        <div class="filter-item"><span class="dot-green"></span>Business Applications</div>
+        <div class="filter-item"><span class="dot-green"></span>Corporate Email</div>
+        <div class="filter-item"><span class="dot-green"></span>Business News & Research</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global Security -->
+  <div class="section">
+    <div class="section-title">🔒 Global Security Policies</div>
+    <div class="security-grid">
+      <div class="security-item"><div class="security-label">Management Access</div><div class="security-value">Internal VLAN 10 only<br>No internet mgmt (VPN required)</div></div>
+      <div class="security-item"><div class="security-label">Protocols</div><div class="security-value">SSH + HTTPS only<br>HTTP & Telnet disabled</div></div>
+      <div class="security-item"><div class="security-label">Admin Passwords</div><div class="security-value">Min 16 chars · Rotated quarterly<br>2FA enabled (FortiGate, Meraki)</div></div>
+      <div class="security-item"><div class="security-label">Session Timeout</div><div class="security-value">15 minutes inactivity<br>All management interfaces</div></div>
+      <div class="security-item"><div class="security-label">Logging</div><div class="security-value">All rule hits logged<br>Retention: 90 days minimum</div></div>
+      <div class="security-item"><div class="security-label">IDS/IPS</div><div class="security-value">Spain: <span class="badge badge-allow" style="font-size:10px;">● Active</span><br>Cardiff: <span class="badge badge-info" style="font-size:10px;">☁ Meraki</span><br>Slovakia: <span class="badge badge-warn" style="font-size:10px;">⚠ Pending</span></div></div>
+    </div>
+  </div>
+
+  <div class="alert-warn">⚠️ &nbsp; Slovakia IDS/IPS pending implementation. Evaluation scheduled Q2 2026. Current protection relies on basic Mikrotik firewall and content filtering only.</div>
+
+  <div class="footer"><span>FIREWALL RULES & SECURITY CONFIGURATION</span><span>IT Team · v1.0 · Feb 2026</span></div>
+</div>
+</body>
+</html>

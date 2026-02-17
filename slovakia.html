@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slovakia – CEE Node</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #a78bfa; --warn: #f59e0b; --glass: rgba(255,255,255,0.06); --glass-border: rgba(255,255,255,0.12); --text: #f0f4f8; --muted: rgba(255,255,255,0.45); --mono: 'Space Mono', monospace; --sans: 'Syne', sans-serif; }
+  body { min-height: 100vh; font-family: var(--sans); color: var(--text); background: #0d0d0d; overflow-x: hidden; }
+  .bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 60% at 20% 20%, rgba(167,139,250,0.3) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 80%, rgba(238,28,37,0.15) 0%, transparent 60%), #0d0d0d; }
+  .bg::after { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 50px 50px; }
+  .wrapper { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 32px; }
+  .back { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); text-decoration: none; letter-spacing: 1px; margin-bottom: 40px; transition: color 0.2s; }
+  .back:hover { color: var(--text); }
+  .header { margin-bottom: 48px; animation: fadeUp 0.5s ease both; }
+  .flag-row { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+  .flag { font-size: 48px; }
+  .tag { font-family: var(--mono); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); padding: 5px 12px; border-radius: 2px; }
+  h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; letter-spacing: -2px; line-height: 1; margin-bottom: 8px; }
+  .subtitle { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: 1px; }
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; animation: fadeUp 0.5s 0.1s ease both; }
+  .stat-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 12px; padding: 20px; text-align: center; }
+  .stat-val { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; margin-bottom: 6px; }
+  .stat-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .section { margin-bottom: 20px; animation: fadeUp 0.5s 0.2s ease both; }
+  .section-title { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
+  .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .info-item { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 10px; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px; }
+  .info-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+  .info-value { font-size: 14px; font-weight: 600; color: var(--text); }
+  .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--glass-border); }
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  thead tr { background: rgba(255,255,255,0.04); border-bottom: 1px solid var(--glass-border); }
+  th { padding: 12px 16px; text-align: left; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.2s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.04); }
+  td { padding: 14px 16px; color: var(--text); vertical-align: middle; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: rgba(0,229,100,0.12); color: #00e564; border: 1px solid rgba(0,229,100,0.2); }
+  .badge-warn { background: rgba(245,158,11,0.12); color: var(--warn); border: 1px solid rgba(245,158,11,0.2); }
+  .services-list { display: grid; gap: 8px; }
+  .service-item { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 10px; padding: 14px 20px; display: flex; align-items: center; gap: 12px; font-size: 14px; }
+  .service-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .security-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .security-item { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(20px); border-radius: 10px; padding: 16px 20px; }
+  .security-label { font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .security-value { font-size: 13px; color: var(--text); line-height: 1.5; }
+  .alert-warn { display: flex; align-items: flex-start; gap: 12px; background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.2); border-left: 3px solid var(--warn); border-radius: 0 10px 10px 0; padding: 16px 20px; font-family: var(--mono); font-size: 11px; color: var(--warn); letter-spacing: 0.3px; line-height: 1.6; margin-bottom: 20px; animation: fadeUp 0.5s 0.3s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .footer { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--muted); letter-spacing: 0.5px; }
+  @media (max-width: 700px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .info-grid { grid-template-columns: 1fr; } .security-grid { grid-template-columns: 1fr; } .wrapper { padding: 32px 16px; } }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="wrapper">
+  <a class="back" href="https://minialmo-design.github.io/network-infra-europe/">← Back to Overview</a>
+  <div class="header">
+    <div class="flag-row"><span class="flag">🇸🇰</span><span class="tag">CEE Node</span></div>
+    <h1>Slovakia</h1>
+    <div class="subtitle">Bratislava · Central & Eastern Europe Operations</div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val">300Mbps</div><div class="stat-label">Bandwidth</div></div>
+    <div class="stat-card"><div class="stat-val">3</div><div class="stat-label">Devices</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:var(--warn);">⚠</div><div class="stat-label">IDS/IPS</div></div>
+    <div class="stat-card"><div class="stat-val" style="color:#00e564;">● ON</div><div class="stat-label">Status</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">🛰️ Network Topology</div>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Primary Connection</span><span class="info-value">Slovak Telekom — 300Mbps Fiber</span></div>
+      <div class="info-item"><span class="info-label">Backup Connection</span><span class="info-value" style="color:var(--warn);">None configured</span></div>
+      <div class="info-item"><span class="info-label">Routing Protocol</span><span class="info-value">RIP (internal communication)</span></div>
+      <div class="info-item"><span class="info-label">VPN</span><span class="info-value">L2TP/IPsec → Madrid Hub</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">🖥️ Equipment Inventory</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Device ID</th><th>Model</th><th>IP Address</th><th>Location</th><th>Status</th><th>Responsible</th></tr></thead>
+        <tbody>
+          <tr><td>RT-BRT-01</td><td>Mikrotik RB4011</td><td>172.16.1.1</td><td>Server Cabinet</td><td><span class="badge badge-green">● Active</span></td><td>Remote Support</td></tr>
+          <tr><td>SW-BRT-01</td><td>HP 2530-24G</td><td>172.16.1.2</td><td>Server Cabinet</td><td><span class="badge badge-green">● Active</span></td><td>Remote Support</td></tr>
+          <tr><td>AP-BRT-01</td><td>Mikrotik cAP ac</td><td>172.16.1.50</td><td>Central Hallway</td><td><span class="badge badge-green">● Active</span></td><td>Remote Support</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">🏷️ VLAN Configuration</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>VLAN ID</th><th>Name</th><th>Subnet</th><th>Purpose</th><th>Gateway</th></tr></thead>
+        <tbody>
+          <tr><td>VLAN 10</td><td>Data</td><td>172.16.10.0/24</td><td>Production workstations</td><td>172.16.10.1</td></tr>
+          <tr><td>VLAN 20</td><td>Voice</td><td>172.16.20.0/24</td><td>VoIP phones</td><td>172.16.20.1</td></tr>
+          <tr><td>VLAN 30</td><td>Guest</td><td>172.16.30.0/24</td><td>Guest WiFi — isolated</td><td>172.16.30.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">🛠️ Critical Services</div>
+    <div class="services-list">
+      <div class="service-item"><span class="service-dot"></span>L2TP/IPsec VPN client to Madrid Hub</div>
+      <div class="service-item"><span class="service-dot"></span>Basic firewall on Mikrotik Routerboard</div>
+      <div class="service-item"><span class="service-dot"></span>Content filtering for outbound traffic</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">🔒 Security Configuration</div>
+    <div class="security-grid">
+      <div class="security-item"><div class="security-label">Firewall</div><div class="security-value">Basic config on Mikrotik Routerboard</div></div>
+      <div class="security-item"><div class="security-label">Content Filtering</div><div class="security-value">Enabled for outbound traffic</div></div>
+      <div class="security-item"><div class="security-label">IDS/IPS</div><div class="security-value"><span class="badge badge-warn">⚠ Pending Q2 2026</span></div></div>
+      <div class="security-item"><div class="security-label">VPN Tunnel</div><div class="security-value">172.16.1.1 → 192.168.1.1 (Madrid)</div></div>
+    </div>
+  </div>
+  <div class="alert-warn">⚠️ &nbsp; IDS/IPS has not been implemented at this location. Security evaluation scheduled for Q2 2026. Until then, this site has reduced threat detection capability.</div>
+  <div class="footer"><span>SLOVAKIA – CEE NODE · Bratislava</span><span>IT Team · v1.0 · Feb 2026</span></div>
+</div>
+</body>
+</html>
